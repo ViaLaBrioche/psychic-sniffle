@@ -24,3 +24,4 @@ allure serve reports/allure
 ## GitHub Actions
 В workflow результаты кладутся в `reports/allure` и загружаются как artifact `allure-results`.
 Можно подключить генерацию статичного HTML через сторонний action позже.
+
