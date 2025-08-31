@@ -1,0 +1,48 @@
+name: UI Tests (Strong + Allure)
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      BASE_URL: ${{ secrets.BASE_URL }}
+      UI_USER: ${{ secrets.UI_USER }}
+      UI_PASS: ${{ secrets.UI_PASS }}
+      BROWSER: chrome
+      HEADLESS: true
+      AFTER_LOGIN_URL_CONTAINS: ${{ secrets.AFTER_LOGIN_URL_CONTAINS }}
+      AFTER_LOGIN_ASSERT_CSS: ${{ secrets.AFTER_LOGIN_ASSERT_CSS }}
+
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
+
+    - name: Install deps
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install -r requirements.txt
+
+    - name: Run tests in parallel with allure results
+      run: python -m pytest -m e2e -n 2 --alluredir=reports/allure -q
+
+    - name: Upload artifacts (screenshots & HTML)
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: ui-test-artifacts
+        path: reports/artifacts
+        if-no-files-found: warn
+
+    - name: Upload Allure results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: allure-results
+        path: reports/allure
+        if-no-files-found: warn
