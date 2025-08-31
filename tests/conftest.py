@@ -1,8 +1,6 @@
 import os, time, pytest, allure
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options as ChromeOptions
-from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
 from config.settings import BASE_URL, BROWSER, HEADLESS
 
 ART_DIR = "reports/artifacts"
@@ -15,12 +13,14 @@ def _make_driver():
         opts.add_argument("--window-size=1920,1080")
         opts.add_argument("--disable-gpu")
         opts.add_argument("--no-sandbox")
-        service = Service(ChromeDriverManager().install())
-        driver = webdriver.Chrome(service=service, options=opts)
+
+        # ✅ Selenium Manager сам подберёт совместимый драйвер для установленного Chrome
+        driver = webdriver.Chrome(options=opts)
         driver.set_page_load_timeout(90)
         driver.implicitly_wait(0)
         return driver
     raise RuntimeError(f"Unsupported browser: {BROWSER}")
+
 
 @pytest.fixture(scope="session")
 def base_url():
